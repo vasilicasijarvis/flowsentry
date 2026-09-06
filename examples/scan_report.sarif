@@ -1,0 +1,1331 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "FlowSentry",
+          "version": "0.1.0",
+          "informationUri": "https://github.com/vasilicasijarvis/flowsentry",
+          "rules": [
+            {
+              "id": "FS001",
+              "name": "Webhookendpointwithoutauthentication",
+              "shortDescription": {
+                "text": "Webhook endpoint without authentication"
+              },
+              "fullDescription": {
+                "text": "Webhook endpoint without authentication"
+              },
+              "help": {
+                "text": "OWASP Agentic mapping: A01 Agent Identity Abuse"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "FS005",
+              "name": "ExecuteCommandnodewithoutguardrails",
+              "shortDescription": {
+                "text": "Execute Command node without guardrails"
+              },
+              "fullDescription": {
+                "text": "Execute Command node without guardrails"
+              },
+              "help": {
+                "text": "OWASP Agentic mapping: A03 Shell Injection"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "FS006",
+              "name": "Codenodewithoutsandboxhardening",
+              "shortDescription": {
+                "text": "Code node without sandbox hardening"
+              },
+              "fullDescription": {
+                "text": "Code node without sandbox hardening"
+              },
+              "help": {
+                "text": "OWASP Agentic mapping: A03 Code Injection"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            },
+            {
+              "id": "FS009",
+              "name": "Expression-basedcommandinjection",
+              "shortDescription": {
+                "text": "Expression-based command injection"
+              },
+              "fullDescription": {
+                "text": "Expression-based command injection"
+              },
+              "help": {
+                "text": "OWASP Agentic mapping: A03 Shell Injection"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "FS010",
+              "name": "Missingerrorhandlingonworkflow",
+              "shortDescription": {
+                "text": "Missing error handling on workflow"
+              },
+              "fullDescription": {
+                "text": "Missing error handling on workflow"
+              },
+              "help": {
+                "text": "OWASP Agentic mapping: A06 Memory & Data Exposure"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            },
+            {
+              "id": "FS014",
+              "name": "Credentialreuseacrossmanynodes",
+              "shortDescription": {
+                "text": "Credential reuse across many nodes"
+              },
+              "fullDescription": {
+                "text": "Credential reuse across many nodes"
+              },
+              "help": {
+                "text": "OWASP Agentic mapping: A02 Excessive Agency"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            },
+            {
+              "id": "FS017",
+              "name": "Webhookresponsemodeexposesinternals",
+              "shortDescription": {
+                "text": "Webhook response mode exposes internals"
+              },
+              "fullDescription": {
+                "text": "Webhook response mode exposes internals"
+              },
+              "help": {
+                "text": "OWASP Agentic mapping: A06 Memory & Data Exposure"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "FS001",
+          "level": "error",
+          "message": {
+            "text": "Webhook endpoint without authentication: Webhook node has authentication set to 'none'. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions. Fix: Set Webhook > Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/anaamrasool_whatsapp-bot.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Webhook WhatsApp"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/anaamrasool_whatsapp-bot.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Extract Message"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/anaamrasool_whatsapp-bot.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Return AI Reply"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/anaamrasool_whatsapp-bot.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "AI Bot"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='lastNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/anaamrasool_whatsapp-bot.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Webhook WhatsApp"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/cheffromspace_ai-pr-assistant.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Code"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/cheffromspace_ai-pr-assistant.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS005",
+          "level": "error",
+          "message": {
+            "text": "Execute Command node without guardrails: Execute Command node runs an expression-built command ({{...}}) - workflow data flows into a shell. Fix: Replace with dedicated nodes, pin an exact static command, run n8n in a restricted container, and require authenticated triggers upstream."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/dragonjar_library-install.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "library_install"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS009",
+          "level": "error",
+          "message": {
+            "text": "Expression-based command injection: Command is built from workflow data ($json/$node expressions). Upstream attacker-controlled content becomes shell metacharacters. Fix: Never interpolate data into commands; use argv-style APIs or strict allowlist validation of the entire command string."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/dragonjar_library-install.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "library_install"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/dragonjar_library-install.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS001",
+          "level": "error",
+          "message": {
+            "text": "Webhook endpoint without authentication: Webhook node has authentication set to 'none'. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions. Fix: Set Webhook > Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/finfra_w1.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "HTTP Trigger"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/finfra_w1.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "w1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='lastNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/finfra_w1.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "HTTP Trigger"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/houseofdata_openwebui-pipe.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "openwebui-n8n-pipe"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='responseNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/houseofdata_openwebui-pipe.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Webhook"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS005",
+          "level": "error",
+          "message": {
+            "text": "Execute Command node without guardrails: Execute Command node runs an expression-built command ({{...}}) - workflow data flows into a shell. Fix: Replace with dedicated nodes, pin an exact static command, run n8n in a restricted container, and require authenticated triggers upstream."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/n8nio_test_103.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Execute Command"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS005",
+          "level": "error",
+          "message": {
+            "text": "Execute Command node without guardrails: Execute Command node runs an expression-built command ({{...}}) - workflow data flows into a shell. Fix: Replace with dedicated nodes, pin an exact static command, run n8n in a restricted container, and require authenticated triggers upstream."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/n8nio_test_103.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Execute Command1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/n8nio_test_103.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS009",
+          "level": "error",
+          "message": {
+            "text": "Expression-based command injection: Command is built from workflow data ($json/$node expressions). Upstream attacker-controlled content becomes shell metacharacters. Fix: Never interpolate data into commands; use argv-style APIs or strict allowlist validation of the entire command string."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/n8nio_test_103.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Execute Command"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS009",
+          "level": "error",
+          "message": {
+            "text": "Expression-based command injection: Command is built from workflow data ($json/$node expressions). Upstream attacker-controlled content becomes shell metacharacters. Fix: Never interpolate data into commands; use argv-style APIs or strict allowlist validation of the entire command string."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/n8nio_test_103.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Execute Command1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/n8nio_test_103.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "ExecuteCommand"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS001",
+          "level": "error",
+          "message": {
+            "text": "Webhook endpoint without authentication: Webhook node has authentication set to 'none'. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions. Fix: Set Webhook > Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Webhook"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "ParseURL"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "FilterSlots"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "preparePatchBody"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "pedirEmail"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "confirmarCita"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "escogerHora"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "subagenteCitas"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS014",
+          "level": "warning",
+          "message": {
+            "text": "Credential reuse across many nodes: Credential 'httpBasicAuth' is used by 5 nodes in one workflow. A single prompt-injection or SSRF pivot exposes all of them. Fix: Split workflows by trust boundary and scope credentials per workflow."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "httpBasicAuth"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='lastNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/santifer_subagente-citas.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Webhook"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS001",
+          "level": "error",
+          "message": {
+            "text": "Webhook endpoint without authentication: Webhook node has authentication set to 'none'. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions. Fix: Set Webhook > Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Webhook"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Format Success Result"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Format History"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Format Charts"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Format Error Prompt"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Extract User Input"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Format Schema"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Prepare Initial Prompt"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "nl2sql"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='responseNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/wilsonoonn_nl2sql.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Webhook"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS001",
+          "level": "error",
+          "message": {
+            "text": "Webhook endpoint without authentication: Webhook node has authentication set to 'none'. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions. Fix: Set Webhook > Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/yorrickjansen_api-authentication.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "API: JWT auth with auth server validation"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/yorrickjansen_api-authentication.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "api-authentication"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='responseNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/yorrickjansen_api-authentication.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Animals API: basic auth"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='responseNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/yorrickjansen_api-authentication.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Animals API: header auth"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='responseNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/yorrickjansen_api-authentication.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Animals API: JWT auth"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS017",
+          "level": "warning",
+          "message": {
+            "text": "Webhook response mode exposes internals: Webhook responseMode='responseNode' - the last node's full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller. Fix: Return an explicit minimal payload via the Respond to Webhook node."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/yorrickjansen_api-authentication.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "API: JWT auth with auth server validation"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/zoeyvid_aida-price-checker.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Prepare Cruises"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS006",
+          "level": "warning",
+          "message": {
+            "text": "Code node without sandbox hardening: Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in 'runOnceForAllItems' JS mode with task runners disabled it can reach the host environment. Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/zoeyvid_aida-price-checker.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Build Messages"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "FS010",
+          "level": "warning",
+          "message": {
+            "text": "Missing error handling on workflow: Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible. Fix: Attach an error workflow in Settings > Error Workflow, or add an Error Trigger workflow that alerts a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/real/zoeyvid_aida-price-checker.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "AIDA Preisalarm"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

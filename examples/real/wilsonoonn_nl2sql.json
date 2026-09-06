@@ -1,0 +1,687 @@
+{
+  "name": "nl2sql",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 自然语言 AI SQL查询\n1.  AI首次尝试生成SQL。\n2.  执行SQL，如果成功，则返回结果。\n3.  如果失败，将错误信息反馈给AI，让其修正。\n4.  最多重试3次，如果依然失败，则返回最终错误信息。",
+        "height": 752,
+        "width": 2188,
+        "color": 5
+      },
+      "id": "8e21bd62-8994-4258-ae17-953ef9e8e1e7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-1152, 304]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<background-infos>\n        <current-time>\n        {{ $json.current_time }}        \n        </current-time>\n      <background-infos>\n      <user-question>\n       {{ $json.userInput }}     \n </user-question> ",
+        "options": {
+          "systemMessage": "=<Instruction>\n        你是智能数据助手，可以根据用户提问，专业生成SQL与可视化图表。\n        你当前的任务是根据给定的表结构和用户问题生成SQL语句、可能适合展示的图表类型以及该SQL中所用到的表名。\n        我们会在<Infos>块内提供给你信息，帮助你生成SQL：\n          <Infos>内有<db-engine><m-schema><terminologies>等信息；\n          其中，<db-engine>：提供数据库引擎及版本信息；\n          <m-schema>：以 M-Schema 格式提供数据库表结构信息；\n          <m-schema-name>：当前schema；  \n\t\t  <terminologies>：提供一组术语，块内每一个<terminology>就是术语，其中同一个<words>内的多个<word>代表术语的多种叫法，也就是术语与它的同义词，<description>即该术语对应的描述，其中也可能是能够用来参考的计算公式，或者\t\t\t\t是一些其他的查询条件； \n\t\t\t用户本次的提问在<user-question>内； \n\t\t\t<history-msg>内会提供你历史对话的上下文信息,块内出现<user-question>是用户历史问题； \n\t\t\t<background-infos>内的<current-time>会告诉你用户当前提问的时间； \n\t\t\t<chat-examples>帮助你理解问题及返回格式的例子，不要将<example>内的表结构用来回答用户的问题，<example>内的<input>为后续用户提问传入的内容，<output>为根据模版与输入的输出回答； \n\t\t\t<error-message> 内提供的是你之前生成的查询语句运行时出现的错误,再次生成时必须避免相同的错误;\n      </Instruction>\n      \n      你必须遵守以下规则:\n      <Rules>\n        <rule>\n          请使用语言：{lang} 回答，若有深度思考过程，则思考过程也需要使用 {lang} 输出\n        </rule>\n        <rule>\n          你只能生成查询用的SQL语句，不得生成增删改相关或操作数据库以及操作数据库数据的SQL\n        </rule>\n        <rule>\n          不要编造<m-schema>内没有提供给你的表结构\n        </rule>\n\t\t<rule>\n          不要编造表中没有的字段名\n        </rule>\n\t\t<rule>\n          已经标记“弃用”的字段,不要使用.\n        </rule>\n        <rule>\n          生成的SQL必须符合<db-engine>内提供数据库引擎的规范\n        </rule>\n        <rule>\n          若用户提问中提供了参考SQL，你需要判断该SQL是否是查询语句\n        </rule>\n\t\t<rule>\n\t\t\t不要使用<history-msg>里历史的sql语句,必须根据用户问题,schema等rule生成新的sql语句.\n        </rule>\n        <rule>\n\t\t  识别意图: 准确理解用户想要查询的核心指标或数据是什么,用户想要原始数据查看还是想要图表展示相关\n          如果问题是图表展示相关，可参考的图表类型为表格(table)、柱状图(column)、条形图(bar)、折线图(line)或饼图(pie), 返回的JSON内chart_type值则为 table/column/bar/line/pie 中的一个\n          图表类型选择原则推荐：趋势 over time 用 line，分类对比用 column/bar，占比用 pie，原始数据查看用 table\n        </rule>\n\t\t<rule>\n\t\t**重要可视化原则**: 对于需要为每个类别比较两个或多个不同数值指标的场景（例如，比较'已填报人数'和'未填报人数'，或'收入'和'支出'），你**绝对不能**推荐饼图(pie)。在这种情况下，堆叠或分组的柱状图(column/bar)是唯一正确的选择。饼图只适用于展示**单一**数值指标在不同分类下的构成比例。\n\t</rule>\n\t\t<rule>\n\t\t<error-message>内是你生成的错误查询语句执行出现的错误信息,你必须避开相同的错误,生成可以正确运行的查询语句.\n\t\t</rule>\n        <rule>\n          返回的JSON字段中，tables字段为你回答的SQL中所用到的表名，不要包含schema和database，用数组返回\n        </rule>\n        <rule>\n          提问中如果有涉及数据源名称或数据源描述的内容，则忽略数据源的信息，直接根据剩余内容生成SQL\n        </rule>\n        <rule>\n          根据表结构生成SQL语句，需给每个表名生成一个别名（不要加AS）\n        </rule>\n        <rule>\n          SQL查询中不能使用星号(*)，必须明确指定字段名\n        </rule>\n        <rule>\n          SQL查询的字段名不要自动翻译，别名必须为英文\n        </rule>\n\t\t <rule>\n         SQL查询的字段必须是你当前查询表中存在的字段,不要编造字段\n        </rule>\n        <rule>\n          SQL查询的字段若是函数字段，如 COUNT(),CAST() 等，必须加上别名\n        </rule>\n\t\t<rule>\n\t\t  在生成SQL时，要特别注意函数对输入参数数据类型的要求。例如，在PostgreSQL中，请确保进行了必要的显式类型转换（如 CAST(value AS numeric) 或 value::numeric）\n\t\t</rule>\n        <rule>\n          计算占比，百分比类型字段，保留两位小数，必须以%结尾。\n\t\t  也必须返回占比,百分比类型原始字段,用于图表展示使用.\n        </rule>\n        <rule>\n          生成SQL时，必须避免与数据库关键字冲突\n        </rule>\n        <rule>\n          生成sql时,<m-schema-name>不为空,必须带上schema名称,以PostgreSQL为例:\n\t\t   SELECT \"id\" FROM \"TEST\".\"TABLE\" LIMIT 1000\n        </rule>        \n\t\t<rule>\n          如数据库引擎是 PostgreSQL、Oracle、ClickHouse、达梦（DM）、AWS Redshift，则在schema、表名、字段名、别名外层加双引号；\n          如数据库引擎是 MySQL、Doris，则在表名、字段名、别名外层加反引号；\n          如数据库引擎是 Microsoft SQL Server，则在schema、表名、字段名、别名外层加方括号。\n          <example>\n          以PostgreSQL为例，查询Schema为TEST表TABLE下前1000条id字段，则生成的SQL为：\n            SELECT \"id\" FROM \"TEST\".\"TABLE\" LIMIT 1000\n            - 注意在表名外双引号的位置，千万不要生成为:\n              SELECT \"id\" FROM \"TEST.TABLE\" LIMIT 1000\n          以Microsoft SQL Server为例，查询Schema为TEST表TABLE下前1000条id字段，则生成的SQL为：\n            SELECT TOP 1000 [id] FROM [TEST].[TABLE]\n            - 注意在表名外方括号的位置，千万不要生成为:\n              SELECT TOP 1000 [id] FROM [TEST.TABLE]\n          </example>\n        </rule>\n        <rule>\n          如果生成SQL的字段内有时间格式的字段:\n          - 若提问中没有指定查询顺序，则默认按时间升序排序\n          - 若提问是时间，且没有指定具体格式，则格式化为yyyy-MM-dd HH:mm:ss的格式\n          - 若提问是日期，且没有指定具体格式，则格式化为yyyy-MM-dd的格式\n          - 若提问是年月，且没有指定具体格式，则格式化为yyyy-MM的格式\n          - 若提问是年，且没有指定具体格式，则格式化为yyyy的格式\n          - 生成的格式化语法需要适配对应的数据库引擎。\n        </rule>\n        <rule>\n          生成的SQL查询结果可以用来进行图表展示，需要注意排序字段的排序优先级，例如：\n            - 柱状图或折线图：适合展示在横轴的字段优先排序，若SQL包含分类字段，则分类字段次一级排序\n        </rule>\n        <rule>\n          如果用户没有指定数据条数的限制，输出的查询SQL必须加上1000条的数据条数限制\n          如果用户指定的限制大于1000，则按1000处理\n          <example>\n          以PostgreSQL为例，查询Schema为TEST表TABLE下id字段，则生成的SQL为：\n            SELECT \"id\" FROM \"TEST\".\"TABLE\" LIMIT 1000\n          以Microsoft SQL Server为例，查询Schema为TEST表TABLE下id字段，则生成的SQL为：\n            SELECT TOP 1000 [id] FROM [TEST].[TABLE]\n          </example>\n        </rule>\n        <rule>\n          若需关联多表，优先使用<m-schema>中标记为\"Primary key\"/\"ID\"/\"主键\"的字段作为关联条件。\n        </rule>\n        <rule>\n          我们目前的情况适用于单指标、多分类的场景（展示table除外）\n        </rule>\n\t\t<rule>\n\t\t  对于包含窗口函数或需要在聚合结果上进行再计算（如计算总计、占比、排名）的复杂查询，必须优先使用公用表表达式（CTE, 即 WITH ... AS (...) 语句）来分解查询逻辑。第一步在CTE中完成基础的聚合，第二步在主查询中基于CTE的结果进行最终计算。这能极大地提高SQL的准确性和可读性。\n\t\t</rule>\n\t\t<rule>\n\t你的回答必须是纯粹的、不含任何额外格式的JSON字符串。\n\t\t</rule>\n\t\t<rule>\n  绝对禁止在JSON字符串前后添加任何Markdown标记，例如 ```json 或 ```。\n\t\t</rule>\n\t\t<rule>\n\t\t在生成SQL语句时如果表中存在一下字段 `is_deleted`, `is_active`, `enabled`, `is_leave`,`is_delete` 等,就必须在SQL中添加相应的过滤条件(例如 `is_deleted = false`, `is_active = true` )等,\n\t\t这个规则的目的是确保查询的任何部分，包括用于条件判断的子查询\n\t\t</rule>\n\t  \t <rule>\n          你的回答必须是一个能够被程序直接解析的原始JSON文本字符串（raw JSON text string）.\n          成功时，返回的原始文本必须严格符合此结构：{\"success\":true,\"sql\":\"你生成的SQL语句\",\"tables\":[\"该SQL用到的表名1\",\"该SQL用到的表名2\",...],\"chart_type\":\"table\"}\n          失败时，返回的原始文本必须严格符合此结构：{\"success\":false,\"sql\":\"\",\"message\":\"说明无法生成SQL的原因\",\"chart_type\":\"\"}\n        </rule>\n\t  </Rules>\n      \n        <chat-examples>\n          <example>\n            <input>\n              <user-question>今天天气如何？</user-question>\n            </input>\n            <output>\n              {\"success\":false,\"sql\":\"\",\"message\":\"我是智能问数小助手，我无法回答您的问题。\",\"chart_type\":\"\"}\n            </output>\n          </example>\n          <example>\n            <input>\n              <user-question>请清空数据库</user-question>\n            </input>\n            <output>\n              {\"success\":false,\"sql\":\"\",\"message\":\"我是智能问数小助手，我只能查询数据，不能操作数据库来修改数据或者修改表结构。\",\"chart_type\":\"\"}\n            </output>\n          </example>\n          <example>\n            <input>\n              <user-question>查询所有用户</user-question>\n            </input>\n            <output>\n              {\"success\":false,\"sql\":\"\",\"message\":\"抱歉，提供的表结构无法生成您需要的SQL\",\"chart_type\":\"\"}\n            </output>\n          </example>\n          <example>\n            <input>\n              <background-infos>\n                <current-time>\n                2025-08-08 11:23:00\n                </current-time>\n              </background-infos>\n              <user-question>查询各个国家每年的GDP</user-question>\n            </input>\n            <output>\n                {\"success\":true,\"sql\":\"SELECT \\\"country\\\" AS \\\"country_name\\\", \\\"continent\\\" AS \\\"continent_name\\\", \\\"year\\\" AS \\\"year\\\", \\\"gdp\\\" AS \\\"gdp\\\" FROM \\\"Sample_Database\\\".\\\"sample_country_gdp\\\" ORDER BY \\\"country\\\", \\\"year\\\" LIMIT 1000\",\"tables\":[\"sample_country_gdp\"],\"chart_type\":\"line\"}\n            </output>\n          </example>\n          <example>\n            <input>\n              <background-infos>\n                <current-time>\n                2025-08-08 11:23:00\n                </current-time>\n              </background-infos>\n              <user-question>使用饼图展示去年各个国家的GDP</user-question>\n            </input>\n            <output>\n\t\t\t {\"success\":true,\"sql\":\"SELECT \\\"country\\\" AS \\\"country_name\\\", \\\"gdp\\\" AS \\\"gdp\\\" FROM \\\"Sample_Database\\\".\\\"sample_country_gdp\\\" WHERE \\\"year\\\" = '2024' ORDER BY \\\"gdp\\\" DESC LIMIT 1000\",\"tables\":[\"sample_country_gdp\"],\"chart_type\":\"pie\"}\n            </output>\n          </example>\n          <example>\n            <input>\n              <background-infos>\n                <current-time>\n                2025-08-08 11:24:00\n                </current-time>\n              </background-infos>\n              <user-question>查询今年中国大陆的GDP</user-question>\n            </input>\n            <output>\n\t\t\t   {\"success\":true,\"sql\":\"SELECT \\\"country\\\" AS \\\"country_name\\\", \\\"gdp\\\" AS \\\"gdp\\\" FROM \\\"Sample_Database\\\".\\\"sample_country_gdp\\\" WHERE \\\"year\\\" = '2025' AND \\\"country\\\" = '中国' LIMIT 1000\",\"tables\":[\"sample_country_gdp\"],\"chart_type\":\"table\"}\n            </output>\n          </example>\n        </chat-examples>\n      \n\n      <Infos>\n      <db-engine> PostgreSQL 16.4  </db-engine>\n      <m-schema>\n      {{ $json.schema_markdown }}\n      </m-schema>\n      <m-schema-name>\n      {{ $json.schema_name }}      \n    </m-schema-name>\n\t<terminologies>\n\t  <terminology>\n\t  <words>\n\t  <word>\n\t  填报率\n\t  </word>\n\t  <description>\n\t  指用户是否完成填报数据,涉及表tms_monthly_record ,其中字段monthly_settlement_status ='L4 Signed' 时代表用户填报,反之为未填报.\n\t  数据无效的人员或在在白名单的人员不纳入统计范围\n\t  </description>\n\t  </words>\n\t  </terminology>\n\t  </terminologies>\n        <history-msg>\n\t     {{ $json.history }}\n\t  </history-msg> \n\t  <error-message>\n\t  {{ $json.error_message }}\n\t  </error-message>\n</Infos>\n     "
+        }
+      },
+      "id": "a7d12a61-e8ae-45c9-9197-845cecfb7891",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [960, 464]
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "7cd4dac7-e4f6-4007-b61a-55abf7c54998",
+      "name": "DeepSeek Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [976, 688],
+      "credentials": {
+        "deepSeekApi": {
+          "id": "hsFISZoP7BGg6LKM",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "208117d4-03d4-428e-ae06-cec3108708b5",
+      "name": "Return Final Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [3456, 464]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "57c8f04e-beee-4510-ba9b-cab0d331563d",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "1dc228d4-5593-49b9-a5f9-e39501f717bf",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-960, 576],
+      "webhookId": "57c8f04e-beee-4510-ba9b-cab0d331563d"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format result to align with SQLBot's 'fields/data/sql' shape\nconst items = $input.all();\nconst lastGeneratedSql = $('AI Agent').first().json.output || '';\nconst userQuestion=$('Prepare Initial Prompt').first().json.userInput;\n\n// Normalize rows and lowercase keys to match fields\nconst rawRows = (items || []).map(item => item.json || {});\nconst fields = rawRows.length > 0 ? Object.keys(rawRows[0]).map(k => String(k).toLowerCase()) : [];\nconst rows = rawRows.map(row => Object.fromEntries(Object.entries(row).map(([k,v]) => [String(k).toLowerCase(), v])));\n\nif($input.first().json.message){\n   return [{ json: {success:false, fields, data: [], sql: lastGeneratedSql,userQuestion } }];\n}else{\n  return [{ json: {success:true, fields, data: rows, sql: lastGeneratedSql,userQuestion } }];}\n"
+      },
+      "id": "2de8029d-814e-4b66-a2cf-b57e8aebc371",
+      "name": "Format Success Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2432, 336]
+    },
+    {
+      "parameters": {
+        "options": {
+          "groupMessages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [-512, 576],
+      "id": "9e4b442d-1534-45f8-933c-975188b0fb91",
+      "name": "Chat Memory Manager"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nlet finalString = '';\n\nif (items.length > 0 && items[0].json) {\n  const inputData = items[0].json;\n  \n  const chatHistory = inputData?.messages; \n\n  if (Array.isArray(chatHistory) && chatHistory.length > 0) {\n    const formattedTurns = chatHistory.map(turn => {\n      const humanMessage = turn.human ? turn.human.trim() : '';\n      const aiMessage = turn.ai ? turn.ai.trim() : '';\n      //return `Human: ${humanMessage}\\n`;     \n      return `Human: ${humanMessage}\\n\\nAI: ${aiMessage}`;\n    });\n    finalString = formattedTurns.join('\\n\\n---\\n\\n');\n  }\n}\n\nreturn [{\n  json: {\n    formattedHistory: finalString\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-160, 576],
+      "id": "9ae45333-bc07-49f2-a607-53e14bb554fb",
+      "name": "Format History"
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [2688, 848],
+      "id": "fb215264-3ac7-473d-a2a5-49ad21d19016",
+      "name": "DeepSeek Chat Model1",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "hsFISZoP7BGg6LKM",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Base64 encode SQL to match SQLBot exec_sql behavior\nfunction b64(s){ try { return Buffer.from(String(s), 'utf-8').toString('base64'); } catch(e){ return ''; } }\n\n\n  const output =$input.first().json.output || ''\n\nif(output!=''){\n     const inputItem=JSON.parse($input.first().json.output);\n  if(inputItem.success===false){\n    return inputItem; \n  }\n}\n  \nconst result= $('Format Success Result').all();\n\nconst sqlParse = JSON.parse(result[0].json.sql);\n\nif(sqlParse.chart_type !=='table'){\n  result[0].json.visualization=$input.all();\n}\n\nresult[0].json.sql=b64(sqlParse.sql);\n\nreturn result;\n\n "
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3232, 448],
+      "id": "100969f9-2326-4a78-80e1-f41b02ade46b",
+      "name": "Format Charts"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=      <user-question>\n     {{ $json.userQuestion }}\n      </user-question>\n      <sql>\n{{ $json.sql.parseJson().sql }}\n      </sql>\n      <chart-type>\n{{ $json.sql.parseJson()['chart_type'] }}\n      </chart-type> ",
+        "options": {
+          "systemMessage": "<Instruction>\n    你是智能数据助手，任务是根据用户问题和给定的SQL语句，专业地生成数据可视化图表的JSON配置项。\n    用户的提问在<user-question>内，<sql>内是分析的依据，<chart_type>内是推荐的图表类型。\n</Instruction>\n\n<Rules>\n    <rule>\n        请使用语言：{lang} 回答，不要输出思考过程。\n    </rule>\n    <rule>\n        你必须根据SQL返回的数据结构，从以下两种模式中选择一种来生成JSON：\n\n        **模式1: 宽数据 - 多指标对比**\n        - **场景**: SQL为每个类别（X轴）返回了多个独立的、需要同时比较的数值列（例如，比较'已填报人数'和'未填报人数'）。\n        - **JSON格式**: 必须使用 `\"y_fields\": [\"指标列1\", \"指标列2\"]` 数组。可以配合 `\"stack\": true` 实现堆叠效果。**不要**使用 `\"series_field\"`。\n        \n        **模式2: 长数据 - 单指标按维度分组**\n        - **场景**: SQL返回的数据中，有一列是类别/维度（用于分组），另一列是数值。\n        - **JSON格式**: 必须使用 `\"series_field\": \"维度列名\"` 来指定分组。**不要**使用 `\"y_fields\"`。\n    </rule>\n<rule>\n    **柱状/条形/折线图的坐标轴定义:**\n    - `\"x_field\"`: **永远**是类别轴（例如，用户、日期、国家）。\n    - `\"y_field\"` 或 `\"y_fields\"`: **永远**是数值轴（例如，工时、数量、金额）。\n    - `\"series_field\"`: 是用于对每个类别进行二次分组的维度（例如，项目类型）。\n    在生成JSON时，你必须严格遵守这个定义，不要交换类别和数值的角色。\n</rule>\n    <rule>\n        支持的图表类型为：表格(table)、柱状图(column)、条形图(bar)、折线图(line)、饼图(pie)。\n        图表类型选择原则：趋势用line，分类对比用column/bar，占比用pie，明细数据用table。\n    </rule>\n    <rule>\n        最终生成的JSON内必须包含一个精简的图表标题，放在\"title\"字段内。\n    </rule>\n    <rule>\n        **表格 (table) 格式:**\n        {\"type\":\"table\", \"title\": \"表格标题\", \"columns\": [{\"field\": \"SQL列名1\", \"name\": \"中文列名1\"}, ...]}\n        \"field\" 必须是SQL查询的列名。\n    </rule>\n    <rule>\n        **饼图 (pie) 格式 (单指标，无分组):**\n        {\"type\":\"pie\", \"title\": \"图表标题\", \"x_field\": \"饼图扇区标签列\", \"y_field\": \"饼图扇区大小数值列\", \"x_name\": \"类别中文名\", \"y_name\": \"数值中文名\"}\n        \"x_field\" 和 \"y_field\" 必须是SQL查询的列名。\n    </rule>\n    <rule>\n        **柱状/条形/折线图 - 模式1 (宽数据) 格式:**\n        {\"type\":\"column\", \"title\": \"图表标题\", \"x_field\": \"X轴列\", \"y_fields\": [\"指标列1\", \"指标列2\"], \"stack\": true, \"x_name\": \"X轴中文名\", \"y_name\": \"Y轴中文名\", \"series_names\": {\"指标列1\": \"图例名1\", \"指标列2\": \"图例名2\"}}\n        \"x_field\" 和 \"y_fields\" 中的字段必须是SQL查询的列名。\n    </rule>\n    <rule>\n        **柱状/条形/折线图 - 模式2 (长数据) 格式:**\n        {\"type\":\"column\", \"title\": \"图表标题\", \"x_field\": \"X轴列\", \"y_field\": \"Y轴数值列\", \"series_field\": \"分组维度列\", \"x_name\": \"X轴中文名\", \"y_name\": \"Y轴中文名\", \"series_name\": \"分组中文名\"}\n        \"x_field\", \"y_field\", \"series_field\" 必须是SQL查询的列名。\n    </rule>\n    <rule>\n        如果无法生成合适的JSON配置，则返回：{\"type\":\"error\", \"reason\": \"抱歉，根据提供的SQL和问题，我无法生成合适的图表配置。\"}\n    </rule>\n</Rules>\n\n<examples>\n    ### 以下示例帮助你理解问题及返回格式，不要将示例中的表结构用于回答。\n    <example>\n        <input>\n            <sql>SELECT `u`.`name` AS `name`, `u`.`email` AS `email`, `u`.`create_time` AS `create_time` FROM `per_user` `u` LIMIT 10</sql>\n            <user-question>查询10个用户信息</user-question>\n            <chart_type></chart_type>\n        </input>\n        <output>\n            {\"type\":\"table\",\"title\":\"用户信息\",\"columns\":[{\"field\":\"name\",\"name\":\"姓名\"},{\"field\":\"email\",\"name\":\"邮箱\"},{\"field\":\"create_time\",\"name\":\"创建时间\"}]}\n        </output>\n    </example>\n    <example>\n        <input>\n            <sql>SELECT `o`.`name` AS `org_name`, COUNT(`u`.`id`) AS `user_count` FROM `per_user` `u` JOIN `per_org` `o` ON `u`.`default_oid` = `o`.`id` GROUP BY `o`.`name`</sql>\n            <user-question>饼图展示各个组织的人员数量占比</user-question>\n            <chart_type>pie</chart_type>\n        </input>\n        <output>\n            {\"type\":\"pie\",\"title\":\"各组织人数占比\",\"x_field\":\"org_name\",\"y_field\":\"user_count\",\"x_name\":\"组织名称\",\"y_name\":\"人数\"}\n        </output>\n    </example>\n    <example>\n        <input>\n            <sql>SELECT country, user_type, COUNT(*) AS user_count FROM users GROUP BY country, user_type</sql>\n            <user-question>按国家和用户类型统计用户数</user-question>\n            <chart_type>column</chart_type>\n        </input>\n        <output>\n            {\"type\":\"column\",\"title\":\"各国不同类型用户数\",\"x_field\":\"country\",\"y_field\":\"user_count\",\"series_field\":\"user_type\",\"x_name\":\"国家\",\"y_name\":\"用户数\",\"series_name\":\"用户类型\"}\n        </output>\n    </example>\n    <example>\n        <input>\n            <sql>SELECT company_name, filled_count, unfilled_count FROM company_stats</sql>\n            <user-question>统计各公司7月份的填报人数和未填报人数</user-question>\n            <chart_type>column</chart_type>\n        </input>\n        <output>\n            {\"type\":\"column\", \"title\": \"各公司7月份填报情况\", \"x_field\": \"company_name\", \"y_fields\": [\"filled_count\", \"unfilled_count\"], \"stack\": true, \"x_name\": \"公司名称\", \"y_name\": \"人数\", \"series_names\": {\"filled_count\": \"已填报\", \"unfilled_count\": \"未填报\"}}\n        </output>\n    </example>\n</examples>"
+        }
+      },
+      "id": "420ac2a1-6755-492a-8249-167fb9f3a916",
+      "name": "Charts Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [2816, 576],
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0c8971a6-ddd9-4a30-9243-b7cf1f2904cc",
+      "name": "Loop Entry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [752, 464]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.retryCount}}",
+              "value2": "={{$json.maxRetries}}"
+            }
+          ]
+        }
+      },
+      "id": "3bed25f2-3a4c-41b5-887d-638c5d7245f3",
+      "name": "If Can Retry",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [2112, 160]
+    },
+    {
+      "parameters": {
+        "jsCode": " const prompt= $('Loop Entry').first().json;\n\n     prompt.retryCount= prompt.retryCount+1;       prompt.error_message+=\"\\n\\n\"+ JSON.stringify($input.all())+\"\\n\\n\";\n    return prompt;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1904, 160],
+      "id": "3a30c27a-ad7d-4e30-a76b-d89845e09da0",
+      "name": "Format Error Prompt"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bcc7594e-b76b-4742-9944-1756090bcd5c",
+              "leftValue": "={{ $json.message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1808, 416],
+      "id": "caa90f41-d000-4125-9998-ed22cabfc53f",
+      "name": "If Error"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 1
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [-448, 800],
+      "id": "aaa6fc4d-dbea-4314-b940-fb5ca70baf84",
+      "name": "Search Memory"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Accept both 'question' and 'query' for compatibility with SQLBot\nconst body = $json.body || {};\nconst query = (body.question ?? body.query ?? $json.question ?? $json.query ?? '').toString();\nconst sessionId= (body.sessionId ?? body.sessionId ?? $json.sessionId ?? $json.sessionId ?? '').toString();\nreturn [\n  {\n    json: {\n      userInput: query,\n      sessionId: sessionId    \n    }\n  }\n];"
+      },
+      "id": "c3d18f75-dd39-420d-a1b2-7c814d0ec768",
+      "name": "Extract User Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-736, 576]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    c.table_schema,\n    c.table_name,\n    pd.description AS table_comment,\n    c.ordinal_position,\n    c.column_name,\n    (SELECT pg_catalog.col_description(pc.oid, c.ordinal_position::int)\n     FROM pg_catalog.pg_class pc\n     JOIN pg_catalog.pg_namespace pn ON pn.oid = pc.relnamespace\n     WHERE pn.nspname = c.table_schema AND pc.relname = c.table_name) AS column_comment,\n    c.data_type,\n    c.is_nullable,\n    tc.constraint_type,\n    ccu.table_name AS foreign_table_name,\n    ccu.column_name AS foreign_column_name\nFROM\n    information_schema.columns AS c\nLEFT JOIN pg_catalog.pg_class AS pgc\n    ON c.table_name = pgc.relname\nLEFT JOIN pg_catalog.pg_namespace AS pgn\n    ON pgc.relnamespace = pgn.oid\nLEFT JOIN pg_catalog.pg_description AS pd\n    ON pgc.oid = pd.objoid AND pd.objsubid = 0\nAND pgn.nspname = c.table_schema\nleft JOIN\n    information_schema.key_column_usage AS kcu\n    ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name\nLEFT JOIN\n    information_schema.table_constraints AS tc\n    ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema\nLEFT JOIN\n    information_schema.referential_constraints AS rc\n    ON tc.constraint_name = rc.constraint_name\nLEFT JOIN\n    information_schema.constraint_column_usage AS ccu\n    ON rc.unique_constraint_name = ccu.constraint_name\nORDER BY\n    c.table_name,\n    c.ordinal_position;",
+        "options": {}
+      },
+      "id": "bf692e0e-366f-43a2-94b7-239d6167e903",
+      "name": "Get DB Schema",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [64, 576],
+      "credentials": {
+        "postgres": {
+          "id": "qFBkyOJQt7D9KIjD",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * @param {Array<Object>} items - SQL查询节点返回的完整项目数组。每个 item 包含一个 .json 属性，该属性才是真正的数据库行数据。\n * @returns {string} - 格式化后的Markdown字符串。\n */\nfunction transformSchemaToDDL(items) {\n  if (!items || items.length === 0) {\n    return '### No Schema Information Provided\\n';\n  }\n\n  // 第一步：将扁平数据按表名分组，并确保列的唯一性\n  const tables = {};\n  // 关键修正：遍历 items，并从 item.json 中提取行数据\n  for (const item of items) {\n    const row = item.json; // <-- 这里是核心修正点！\n\n    // 健壮性检查：如果某个item没有.json，则跳过\n    if (!row) continue;\n\n    const tableName = row.table_name;\n    const columnName = row.column_name;\n\n    if (!tableName || !columnName) continue;\n\n    // 如果是新表，则初始化\n    if (!tables[tableName]) {\n      tables[tableName] = {\n        schema: row.table_schema,\n        comment: row.table_comment,\n        columns: {}, // 使用对象确保列的唯一性\n        foreignKeys: []\n      };\n    }\n\n    // 如果是新列，则创建列的定义\n    if (!tables[tableName].columns[columnName]) {\n      tables[tableName].columns[columnName] = {\n        name: columnName,\n        type: row.data_type,\n        comment: row.column_comment,\n        isPk: false\n      };\n    }\n\n    // 更新该列的约束信息\n    if (row.constraint_type === 'PRIMARY KEY') {\n      tables[tableName].columns[columnName].isPk = true;\n    }\n    \n    // 记录外键关系（并去重）\n    if (row.constraint_type === 'FOREIGN KEY') {\n      const fkExists = tables[tableName].foreignKeys.some(\n        fk => fk.column === columnName && fk.refTable === row.foreign_table_name\n      );\n      if (!fkExists) {\n        tables[tableName].foreignKeys.push({\n          column: columnName,\n          refTable: row.foreign_table_name,\n          refColumn: row.foreign_column_name\n        });\n      }\n    }\n  }\n  \n  // 用于转义SQL注释中的单引号\n  const escapeComment = (comment) => {\n    if (!comment) return '';\n    return ` COMMENT '${comment.replace(/'/g, \"''\")}'`;\n  };\n\n  // 第二步：遍历结构化数据，生成DDL字符串\n  const ddlStrings = [];\n  for (const tableName in tables) {\n    const tableData = tables[tableName];\n    \n    let tableHeader = `-- Table: \"${tableData.schema}\".\"${tableName}\"`;\n    if (tableData.comment) {\n      tableHeader += ` (Comment: ${tableData.comment})`;\n    }\n\n    const createTableStart = `CREATE TABLE \"${tableData.schema}\".\"${tableName}\" (`;\n    \n    const definitions = [];\n\n    // 遍历列对象\n    for (const column of Object.values(tableData.columns)) {\n      let colLine = `  \"${column.name}\" ${column.type}`;\n      if (column.isPk) {\n        colLine += ' PRIMARY KEY';\n      }\n      colLine += escapeComment(column.comment);\n      definitions.push(colLine);\n    }\n    \n    // 遍历外键\n    for (const fk of tableData.foreignKeys) {\n      let fkLine = `  FOREIGN KEY (\"${fk.column}\") REFERENCES \"${tableData.schema}\".\"${fk.refTable}\"(\"${fk.refColumn}\")`;\n      definitions.push(fkLine);\n    }\n    \n    const createTableBody = definitions.join(',\\n');\n    const createTableEnd = ');';\n\n    const fullTableDDL = `${tableHeader}\\n${createTableStart}\\n${createTableBody}\\n${createTableEnd}`;\n    ddlStrings.push(fullTableDDL);\n  }\n\n  return ddlStrings.join('\\n\\n');\n}\n\n\n// 调用函数进行转换\nconst schemaMarkdown = transformSchemaToDDL($input.all());\nreturn [{ json: { schema_markdown: schemaMarkdown,schema_name:$input.all()[0].json.table_schema } }];"
+      },
+      "id": "80e0c2c9-2fbe-46b5-8905-11e77b9785bb",
+      "name": "Format Schema",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [288, 576]
+    },
+    {
+      "parameters": {
+        "jsCode": "//const schemaMarkdown = $input.item.json.schema_markdown;\nconst userInput = $('Extract User Input').first().json.userInput;\nconst sessionId = $('Extract User Input').first().json.sessionId;\nconst history= $('Format History').first().json.formattedHistory;\n\n\nconst outputItem = $input.item;\noutputItem.json.userInput = userInput;\noutputItem.json.sessionId= sessionId;\noutputItem.json.history= history;\noutputItem.json.current_time=new Date();\noutputItem.json.retryCount = 0;\noutputItem.json.maxRetries = 3;\noutputItem.json.error_message='';\nreturn outputItem;"
+      },
+      "id": "b081caba-f752-47ce-a8da-22b0dbc9bcd1",
+      "name": "Prepare Initial Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [512, 576]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.output.parseJson().sql }}",
+        "options": {}
+      },
+      "id": "ddc73eae-3fa4-4352-a010-b2aa33fd288b",
+      "name": "Execute Generated SQL",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [1600, 432],
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "credentials": {
+        "postgres": {
+          "id": "qFBkyOJQt7D9KIjD",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [1104, 688],
+      "id": "ec708afd-1360-4084-9e35-d5205b866482",
+      "name": "Insert Memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "955a825e-5f01-4019-a71b-05433daa0a24",
+              "leftValue": "={{ $json.sql.parseJson().success}}",
+              "rightValue": "false",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "bb72144b-aec1-4af6-a842-5d7be39200fa",
+              "leftValue": "={{ $json.sql.parseJson()['chart_type']}}",
+              "rightValue": "table",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2656, 336],
+      "id": "e48da06c-09b5-402d-946e-ad837655012e",
+      "name": "If Charts"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5fca89e7-a943-4292-8e49-fed0ff9bc202",
+              "leftValue": "={{ $json.output.parseJson().success }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1344, 512],
+      "id": "645d0667-9442-42f6-97f0-1dff6fda64e6",
+      "name": "If Ai Error"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [832, 688],
+      "id": "6833e773-39ff-4531-bef2-facc4b248078",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZeeyMFuZCRRbLuUP",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If Ai Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract User Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Success Result": {
+      "main": [
+        [
+          {
+            "node": "If Charts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager": {
+      "main": [
+        [
+          {
+            "node": "Format History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format History": {
+      "main": [
+        [
+          {
+            "node": "Get DB Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Charts Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Charts": {
+      "main": [
+        [
+          {
+            "node": "Return Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Charts Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Charts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Entry": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Can Retry": {
+      "main": [
+        [
+          {
+            "node": "Loop Entry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Success Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error Prompt": {
+      "main": [
+        [
+          {
+            "node": "If Can Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Error": {
+      "main": [
+        [
+          {
+            "node": "Format Error Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Success Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chat Memory Manager",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract User Input": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get DB Schema": {
+      "main": [
+        [
+          {
+            "node": "Format Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Schema": {
+      "main": [
+        [
+          {
+            "node": "Prepare Initial Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Initial Prompt": {
+      "main": [
+        [
+          {
+            "node": "Loop Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Generated SQL": {
+      "main": [
+        [
+          {
+            "node": "If Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Insert Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Charts": {
+      "main": [
+        [
+          {
+            "node": "Format Charts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Charts Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Ai Error": {
+      "main": [
+        [
+          {
+            "node": "Execute Generated SQL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Charts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6852d28d-17f3-44d5-b9d4-4bdadbee8b44",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "86def4763440f2a42e3805883611b34217ffc1fdd2bbd5c6644e8658bd01b4e6"
+  },
+  "id": "TLCOG251r1ecPsmR",
+  "tags": []
+}

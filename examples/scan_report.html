@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>FlowSentry Report</title>
+<style>
+body{font-family:ui-sans-serif,system-ui,sans-serif;background:#0a0e1a;color:#e2e8f0;margin:0;padding:40px}
+h1{background:linear-gradient(135deg,#22d3ee,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+table{border-collapse:collapse;width:100%;margin-top:24px}
+td,th{border:1px solid #1f2937;padding:10px;text-align:left;vertical-align:top;font-size:14px}
+th{background:#111827}
+.pill{padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+tr.critical .pill{background:#7f1d1d;color:#fecaca}
+tr.high .pill{background:#7c2d12;color:#fed7aa}
+tr.medium .pill{background:#713f12;color:#fef08a}
+tr.low .pill{background:#164e63;color:#a5f3fc}
+code{background:#111827;padding:2px 6px;border-radius:4px;display:inline-block;margin-top:6px;font-size:12px}
+.sum{margin-top:12px;color:#94a3b8}
+</style></head><body>
+<h1>FlowSentry Security Report</h1>
+<p class="sum">Generated 2026-09-06 02:26 UTC -
+10 file(s) scanned - 50 finding(s)
+(critical: 11, high: 0, medium: 39, low: 0)</p>
+<table><tr><th>Severity</th><th>Rule</th><th>File</th><th>Node</th><th>Detail</th><th>OWASP Agentic</th></tr>
+
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS001</td>
+          <td>examples/real/anaamrasool_whatsapp-bot.json</td>
+          <td>Webhook WhatsApp<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook endpoint without authentication</b><br>Webhook node has authentication set to &#x27;none&#x27;. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions.<br>
+              <small>Fix: Set Webhook &gt; Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive.</small></td>
+          <td><small>A01 Agent Identity Abuse</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS005</td>
+          <td>examples/real/dragonjar_library-install.json</td>
+          <td>library_install<br><small>n8n-nodes-base.executeCommand</small></td>
+          <td><b>Execute Command node without guardrails</b><br>Execute Command node runs an expression-built command ({{...}}) - workflow data flows into a shell.<br>
+              <small>Fix: Replace with dedicated nodes, pin an exact static command, run n8n in a restricted container, and require authenticated triggers upstream.</small><code>=#!/bin/bash
+
+# Get library name from variable
+LIBRARY_NAME=&quot;{{$json.library}}&quot;
+</code></td>
+          <td><small>A03 Shell Injection</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS009</td>
+          <td>examples/real/dragonjar_library-install.json</td>
+          <td>library_install<br><small>n8n-nodes-base.executeCommand</small></td>
+          <td><b>Expression-based command injection</b><br>Command is built from workflow data ($json/$node expressions). Upstream attacker-controlled content becomes shell metacharacters.<br>
+              <small>Fix: Never interpolate data into commands; use argv-style APIs or strict allowlist validation of the entire command string.</small><code>=#!/bin/bash
+
+# Get library name from variable
+LIBRARY_NAME=&quot;{{$json.library}}&quot;
+</code></td>
+          <td><small>A03 Shell Injection</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS001</td>
+          <td>examples/real/finfra_w1.json</td>
+          <td>HTTP Trigger<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook endpoint without authentication</b><br>Webhook node has authentication set to &#x27;none&#x27;. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions.<br>
+              <small>Fix: Set Webhook &gt; Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive.</small></td>
+          <td><small>A01 Agent Identity Abuse</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS005</td>
+          <td>examples/real/n8nio_test_103.json</td>
+          <td>Execute Command<br><small>n8n-nodes-base.executeCommand</small></td>
+          <td><b>Execute Command node without guardrails</b><br>Execute Command node runs an expression-built command ({{...}}) - workflow data flows into a shell.<br>
+              <small>Fix: Replace with dedicated nodes, pin an exact static command, run n8n in a restricted container, and require authenticated triggers upstream.</small><code>=echo &#x27;test&#x27; &gt; /tmp/{{$node[&quot;Set&quot;].json[&quot;filename&quot;]}}</code></td>
+          <td><small>A03 Shell Injection</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS005</td>
+          <td>examples/real/n8nio_test_103.json</td>
+          <td>Execute Command1<br><small>n8n-nodes-base.executeCommand</small></td>
+          <td><b>Execute Command node without guardrails</b><br>Execute Command node runs an expression-built command ({{...}}) - workflow data flows into a shell.<br>
+              <small>Fix: Replace with dedicated nodes, pin an exact static command, run n8n in a restricted container, and require authenticated triggers upstream.</small><code>=rm /tmp/{{$node[&quot;Set&quot;].json[&quot;filename&quot;]}}</code></td>
+          <td><small>A03 Shell Injection</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS009</td>
+          <td>examples/real/n8nio_test_103.json</td>
+          <td>Execute Command<br><small>n8n-nodes-base.executeCommand</small></td>
+          <td><b>Expression-based command injection</b><br>Command is built from workflow data ($json/$node expressions). Upstream attacker-controlled content becomes shell metacharacters.<br>
+              <small>Fix: Never interpolate data into commands; use argv-style APIs or strict allowlist validation of the entire command string.</small><code>=echo &#x27;test&#x27; &gt; /tmp/{{$node[&quot;Set&quot;].json[&quot;filename&quot;]}}</code></td>
+          <td><small>A03 Shell Injection</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS009</td>
+          <td>examples/real/n8nio_test_103.json</td>
+          <td>Execute Command1<br><small>n8n-nodes-base.executeCommand</small></td>
+          <td><b>Expression-based command injection</b><br>Command is built from workflow data ($json/$node expressions). Upstream attacker-controlled content becomes shell metacharacters.<br>
+              <small>Fix: Never interpolate data into commands; use argv-style APIs or strict allowlist validation of the entire command string.</small><code>=rm /tmp/{{$node[&quot;Set&quot;].json[&quot;filename&quot;]}}</code></td>
+          <td><small>A03 Shell Injection</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS001</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>Webhook<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook endpoint without authentication</b><br>Webhook node has authentication set to &#x27;none&#x27;. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions.<br>
+              <small>Fix: Set Webhook &gt; Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive.</small></td>
+          <td><small>A01 Agent Identity Abuse</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS001</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Webhook<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook endpoint without authentication</b><br>Webhook node has authentication set to &#x27;none&#x27;. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions.<br>
+              <small>Fix: Set Webhook &gt; Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive.</small></td>
+          <td><small>A01 Agent Identity Abuse</small></td>
+        </tr>
+        <tr class="critical">
+          <td><span class="pill">critical</span></td>
+          <td>FS001</td>
+          <td>examples/real/yorrickjansen_api-authentication.json</td>
+          <td>API: JWT auth with auth server validation<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook endpoint without authentication</b><br>Webhook node has authentication set to &#x27;none&#x27;. Anyone who can reach the n8n instance can trigger this workflow and its downstream actions.<br>
+              <small>Fix: Set Webhook &gt; Authentication to Basic/Header/JWT auth, or validate a shared-secret header in the workflow before doing anything sensitive.</small></td>
+          <td><small>A01 Agent Identity Abuse</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/anaamrasool_whatsapp-bot.json</td>
+          <td>Extract Message<br><small>n8n-nodes-base.function</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/anaamrasool_whatsapp-bot.json</td>
+          <td>Return AI Reply<br><small>n8n-nodes-base.function</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/anaamrasool_whatsapp-bot.json</td>
+          <td>AI Bot<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/anaamrasool_whatsapp-bot.json</td>
+          <td>Webhook WhatsApp<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;lastNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/cheffromspace_ai-pr-assistant.json</td>
+          <td>Code<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/cheffromspace_ai-pr-assistant.json</td>
+          <td>?<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/dragonjar_library-install.json</td>
+          <td>?<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/finfra_w1.json</td>
+          <td>w1<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/finfra_w1.json</td>
+          <td>HTTP Trigger<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;lastNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/houseofdata_openwebui-pipe.json</td>
+          <td>openwebui-n8n-pipe<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/houseofdata_openwebui-pipe.json</td>
+          <td>Webhook<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;responseNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/n8nio_test_103.json</td>
+          <td>Function<br><small>n8n-nodes-base.function</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/n8nio_test_103.json</td>
+          <td>ExecuteCommand<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>ParseURL<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>FilterSlots<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>preparePatchBody<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>pedirEmail<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>confirmarCita<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>escogerHora<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>subagenteCitas<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS014</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>httpBasicAuth<br><small>credential</small></td>
+          <td><b>Credential reuse across many nodes</b><br>Credential &#x27;httpBasicAuth&#x27; is used by 5 nodes in one workflow. A single prompt-injection or SSRF pivot exposes all of them.<br>
+              <small>Fix: Split workflows by trust boundary and scope credentials per workflow.</small></td>
+          <td><small>A02 Excessive Agency</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/santifer_subagente-citas.json</td>
+          <td>Webhook<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;lastNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Format Success Result<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Format History<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Format Charts<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Format Error Prompt<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Extract User Input<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Format Schema<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Prepare Initial Prompt<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>nl2sql<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/wilsonoonn_nl2sql.json</td>
+          <td>Webhook<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;responseNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/yorrickjansen_api-authentication.json</td>
+          <td>api-authentication<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/yorrickjansen_api-authentication.json</td>
+          <td>Animals API: basic auth<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;responseNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/yorrickjansen_api-authentication.json</td>
+          <td>Animals API: header auth<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;responseNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/yorrickjansen_api-authentication.json</td>
+          <td>Animals API: JWT auth<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;responseNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS017</td>
+          <td>examples/real/yorrickjansen_api-authentication.json</td>
+          <td>API: JWT auth with auth server validation<br><small>n8n-nodes-base.webhook</small></td>
+          <td><b>Webhook response mode exposes internals</b><br>Webhook responseMode=&#x27;responseNode&#x27; - the last node&#x27;s full output (possibly including credentials, internal IDs, stack traces) is returned to the unauthenticated caller.<br>
+              <small>Fix: Return an explicit minimal payload via the Respond to Webhook node.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/zoeyvid_aida-price-checker.json</td>
+          <td>Prepare Cruises<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS006</td>
+          <td>examples/real/zoeyvid_aida-price-checker.json</td>
+          <td>Build Messages<br><small>n8n-nodes-base.code</small></td>
+          <td><b>Code node without sandbox hardening</b><br>Code node present (mode=runOnceForAllItems). Custom code runs inside n8n; in &#x27;runOnceForAllItems&#x27; JS mode with task runners disabled it can reach the host environment.<br>
+              <small>Fix: Enable N8N_RUNNERS_ENABLED=true (task runners sandbox), keep code reviewed in version control, and avoid importing os/child_process.</small></td>
+          <td><small>A03 Code Injection</small></td>
+        </tr>
+        <tr class="medium">
+          <td><span class="pill">medium</span></td>
+          <td>FS010</td>
+          <td>examples/real/zoeyvid_aida-price-checker.json</td>
+          <td>AIDA Preisalarm<br><small>workflow</small></td>
+          <td><b>Missing error handling on workflow</b><br>Workflow has no errorWorkflow setting and no Error Trigger node. Failures (and the data inside them) go nowhere visible.<br>
+              <small>Fix: Attach an error workflow in Settings &gt; Error Workflow, or add an Error Trigger workflow that alerts a human.</small></td>
+          <td><small>A06 Memory &amp; Data Exposure</small></td>
+        </tr>
+</table>
+<p class="sum">FlowSentry v0.1.0 - github.com/vasilicasijarvis/flowsentry</p>
+</body></html>
