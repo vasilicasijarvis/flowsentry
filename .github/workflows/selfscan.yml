@@ -1,0 +1,27 @@
+name: self-scan
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  selfscan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Run test suite
+        run: python3 tests/run_tests.py
+      - name: FlowSentry self-scan (dogfooding)
+        run: |
+          python3 flowsentry_cli.py scan examples/real --json report.json --fail-on never
+          echo "## FlowSentry self-scan summary" >> $GITHUB_STEP_SUMMARY
+          python3 -c "
+          import json
+          r = json.load(open('report.json'))
+          s = r['summary']
+          print(f\"critical: {s['critical']} | high: {s['high']} | medium: {s['medium']} | files: {r['files_scanned']}\" )
+          print('Full report artifact: report.json')
+          " >> $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flowsentry-report
+          path: report.json

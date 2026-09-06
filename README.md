@@ -1,5 +1,7 @@
 # FlowSentry
 
+[![self-scan](https://github.com/vasilicasijarvis/flowsentry/actions/workflows/selfscan.yml/badge.svg)](https://github.com/vasilicasijarvis/flowsentry/actions/workflows/selfscan.yml)
+
 **Security scanner for n8n workflows — 18 rules, zero dependencies, CI-ready.**
 
 FlowSentry parses your n8n workflow JSON exports and flags the failures we keep seeing in
