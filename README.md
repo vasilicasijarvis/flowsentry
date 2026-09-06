@@ -16,11 +16,12 @@ Scanning) and a self-contained HTML report.
 - Exit code 1 on findings → drop it into CI as a quality gate
 
 ```bash
-$ pip install git+https://github.com/vasilicasijarvis/flowsentry.git
+$ pip install flowsentry
 $ flowsentry scan workflows/ --sarif flowsentry.sarif
 ```
 
-> PyPI package (`pip install flowsentry`) is coming — for now install straight from GitHub.
+PyPI: https://pypi.org/project/flowsentry/ · or install straight from GitHub:
+`pip install git+https://github.com/vasilicasijarvis/flowsentry.git`
 
 **No install at all:**
 
