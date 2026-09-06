@@ -14,8 +14,18 @@ Scanning) and a self-contained HTML report.
 - Exit code 1 on findings → drop it into CI as a quality gate
 
 ```bash
-$ pip install flowsentry          # or: pipx install flowsentry
+$ pip install git+https://github.com/vasilicasijarvis/flowsentry.git
 $ flowsentry scan workflows/ --sarif flowsentry.sarif
+```
+
+> PyPI package (`pip install flowsentry`) is coming — for now install straight from GitHub.
+
+**No install at all:**
+
+```bash
+git clone https://github.com/vasilicasijarvis/flowsentry
+cd flowsentry
+python3 flowsentry_cli.py scan ./workflows
 ```
 
 ---
@@ -140,7 +150,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install flowsentry
+      - run: pip install git+https://github.com/vasilicasijarvis/flowsentry.git
       - run: flowsentry scan ./workflows --sarif flowsentry.sarif --fail-on high
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
