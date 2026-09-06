@@ -318,8 +318,12 @@ def main(argv=None):
         print(f"  HTML report: {args.html_out}")
 
     total = summary_counts(all_findings)
-    threshold = SEVERITY_ORDER[args.fail_on] if args.fail_on != "never" else 0
-    breached = sum(v for k, v in total.items() if SEVERITY_ORDER.get(k, 0) >= threshold and k != "info")
+    if args.fail_on == "never":
+        breached = False
+    else:
+        threshold = SEVERITY_ORDER[args.fail_on]
+        breached = sum(v for k, v in total.items()
+                       if SEVERITY_ORDER.get(k, 0) >= threshold and k != "info") > 0
     return 1 if breached else 0
 
 
