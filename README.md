@@ -1,6 +1,9 @@
 # FlowSentry
 
 [![self-scan](https://github.com/vasilicasijarvis/flowsentry/actions/workflows/selfscan.yml/badge.svg)](https://github.com/vasilicasijarvis/flowsentry/actions/workflows/selfscan.yml)
+[![PyPI](https://img.shields.io/pypi/v/flowsentry)](https://pypi.org/project/flowsentry/)
+[![Python](https://img.shields.io/pypi/pyversions/flowsentry)](https://pypi.org/project/flowsentry/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/vasilicasijarvis/flowsentry/blob/main/LICENSE)
 
 **Security scanner for n8n workflows — 18 rules, zero dependencies, CI-ready.**
 
@@ -94,7 +97,26 @@ We scanned 10 real, public n8n workflow files from GitHub with FlowSentry v0.1:
 
 Rules FS002–FS004, FS011–FS013 and FS015–FS018 (secrets, SSRF/IMDS, SQL injection,
 plain http, community nodes, exfil sinks) did not fire on this particular sample but are
-fully covered by the 30-test suite in [`tests/test_rules.py`](tests/test_rules.py).
+fully covered by the 40-test suite in [`tests/test_rules.py`](tests/test_rules.py).
+
+**Real run, 2026-09-06** — `flowsentry scan examples/real` on the 10 public workflow
+exports (exit code 1 as expected on critical findings):
+
+```
+  examples/real/AI_Bot.json  (WhatsApp bot) - 5 finding(s)
+    [!] CRITICAL FS001 Webhook endpoint without authentication
+           node: HTTP Trigger  (n8n-nodes-base.webhook)
+    [~] MEDIUM   FS017 Webhook response mode exposes internals
+           node: API: JWT auth with auth server validation  (n8n-nodes-base.webhook)
+           Webhook responseMode='responseNode' - the last node's full output (possibly
+           including credentials, internal IDs, stack traces) is returned to the
+           unauthenticated caller.
+           fix: Return an explicit minimal payload via the Respond to Webhook node.
+
+  Summary
+    critical: 11   high: 0   medium: 39   low: 0
+    Result: FAIL - fix critical/high findings before production.
+```
 
 Full machine-readable results: [`examples/scan_report.json`](examples/scan_report.json),
 [`examples/scan_report.sarif`](examples/scan_report.sarif) and
@@ -178,7 +200,7 @@ flowsentry scan ./workflows --html report.html
 ```bash
 git clone https://github.com/vasilicasijarvis/flowsentry
 cd flowsentry
-python3 tests/run_tests.py     # 30 tests, zero dependencies
+python3 tests/run_tests.py     # 40 tests, zero dependencies
 ```
 
 Re-fetch the public example workflows used in the README scan:
