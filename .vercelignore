@@ -1,0 +1,10 @@
+examples/
+docs/
+tests/
+marketing/
+scripts/
+.git/
+.github/
+__pycache__/
+*.pyc
+agentpay/README.md
