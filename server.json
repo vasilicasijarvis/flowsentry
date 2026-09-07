@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.vasilicasijarvis/flowsentry",
   "title": "FlowSentry",
-  "description": "Security scanner for n8n workflow JSON exports: 18 static-analysis rules (webhook auth, hardcoded secrets, SSRF/IMDS, command injection, SQL injection, exfil sinks) mapped to OWASP Agentic Top 10.",
+  "description": "Security scanner for n8n workflows: 18 rules, OWASP Agentic mapped. Free MCP, paid x402 API.",
   "version": "0.2.0",
   "repository": {
     "url": "https://github.com/vasilicasijarvis/flowsentry",
