@@ -30,6 +30,62 @@ from x402 import x402ResourceServer
 from x402.http import FacilitatorConfig, HTTPFacilitatorClient, PaymentOption, RouteConfig
 from x402.http.middleware.fastapi import PaymentMiddlewareASGI
 from x402.mechanisms.evm.exact import ExactEvmServerScheme
+from x402.http.middleware._bazaar_utils import register_bazaar_extension
+
+# Bazaar discovery declaration (x402 v2 extension): lets facilitators catalog
+# POST /v1/scan so agents can find it via Bazaar search/discovery APIs.
+BODY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string", "description": "Optional workflow name"},
+        "nodes": {"type": "array", "items": {"type": "object"},
+                  "description": "n8n workflow nodes array"},
+        "connections": {"type": "object", "description": "n8n connections object"},
+    },
+    "required": ["nodes"],
+}
+BAZAAR_DECLARATION = {
+    "info": {
+        "input": {
+            "type": "http", "method": "POST", "bodyType": "json",
+            "body": {"name": "my-workflow",
+                     "nodes": [{"name": "Webhook", "type": "n8n-nodes-base.webhook",
+                                "parameters": {"authentication": "none"}}],
+                     "connections": {}},
+        },
+        "output": {
+            "type": "json",
+            "example": {"scan": {"source": "my-workflow", "findings_total": 3,
+                                 "summary": {"critical": 2, "medium": 1},
+                                 "verdict": "critical"},
+                        "findings": [{"rule_id": "FS001", "severity": "critical",
+                                      "title": "Webhook endpoint without authentication"}]},
+        },
+    },
+    "schema": {
+        "type": "object",
+        "properties": {
+            "input": {"type": "object",
+                      "properties": {"type": {"type": "string", "enum": ["http"]},
+                                     "method": {"type": "string", "enum": ["POST"]},
+                                     "bodyType": {"type": "string", "enum": ["json"]},
+                                     "body": BODY_SCHEMA},
+                      "required": ["type", "method", "body"]},
+            "output": {"type": "object",
+                       "properties": {"type": {"type": "string"},
+                                      "example": {"type": "object"}}},
+        },
+        "required": ["input"],
+    },
+}
+
+try:
+    from agentpay.mcp_server import mcp_app
+except Exception as _mcp_exc:
+    mcp_app = None
+    _MCP_ERR = repr(_mcp_exc)
+else:
+    _MCP_ERR = None
 
 # ---------------------------------------------------------------- FlowSentry import
 FLOWS_REPO = os.environ.get("FLOWS_REPO", "/home/mihai/flowsentry")
@@ -159,6 +215,7 @@ async def scan(request: Request):
 facilitator = HTTPFacilitatorClient(FacilitatorConfig(url=FACILITATOR_URL))
 resource_server = x402ResourceServer(facilitator)
 resource_server.register(NETWORK, ExactEvmServerScheme())
+register_bazaar_extension(resource_server)  # catalog paid calls into the Bazaar
 
 routes = {
     "POST /v1/scan": RouteConfig(
@@ -168,10 +225,17 @@ routes = {
         mime_type="application/json",
         service_name="flowsentry",
         tags=["security", "n8n", "scanner", "devsecops", "owasp"],
+        extensions={"bazaar": BAZAAR_DECLARATION},
     ),
 }
 
 app.add_middleware(PaymentMiddlewareASGI, routes=routes, server=resource_server)
+
+# ---------------------------------------------------------------- MCP mount
+if mcp_app is not None:
+    app.mount("", mcp_app)  # root mount; FastMCP handles exactly /mcp
+    # required: MCP session manager lifespan (fastmcp + FastAPI integration)
+    app.router.lifespan_context = mcp_app.router.lifespan_context
 
 # vercel serverless entrypoint
 app_handler = app

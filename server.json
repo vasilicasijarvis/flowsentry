@@ -1,0 +1,17 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.vasilicasijarvis/flowsentry",
+  "title": "FlowSentry",
+  "description": "Security scanner for n8n workflow JSON exports: 18 static-analysis rules (webhook auth, hardcoded secrets, SSRF/IMDS, command injection, SQL injection, exfil sinks) mapped to OWASP Agentic Top 10.",
+  "version": "0.2.0",
+  "repository": {
+    "url": "https://github.com/vasilicasijarvis/flowsentry",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://flowsentry-agentpay.vercel.app/mcp"
+    }
+  ]
+}

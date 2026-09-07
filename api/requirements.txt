@@ -1,0 +1,2 @@
+x402[evm,fastapi]>=2.22.0
+fastmcp>=4.0.3
