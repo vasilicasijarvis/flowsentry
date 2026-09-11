@@ -1,0 +1,14 @@
+Dear supplier,
+
+Please quote the following items for our panel build:
+
+1. ABB SACE S3N 250A circuit breaker, qty 4
+2. Schneider iC60N 4P 40A, qty 12
+3. Siemens 3RV2011-1CA10 motor starter, qty 6
+4. Phoenix Contact UT 2,5 terminal blocks, qty 200
+
+A9F74425 8 EA Circuit breaker iC60N 4P 63A B-Curve
+Hager MB112N 10 PCS Distribution board
+
+Best regards,
+Purchasing dept.
